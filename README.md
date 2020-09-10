@@ -1,4 +1,4 @@
-# supermail
+# shop
 
 ## Project setup
 ```

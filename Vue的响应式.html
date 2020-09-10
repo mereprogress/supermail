@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<!-- 1
+app.message.修改数据,Vue内部是如何监听message的数据改变?object.defineProperty
+当数据发生改变，Vue是如何知道通知，页面发生刷新//
+
+-->
+
+
+    <div id="app">
+        {{message}}
+
+    </div>
+    
+    <script>
+        const obj={
+            message:'hello'
+        }
+        Object.keys(obj).forEach(key =>{   // Object.keys(obj)返回一个由一个给定对象的自身可枚举属性组成的数组，属性名
+            let value=obj[key]
+
+            Object.defineProperty (obj,key,{  //重新定义属性，新的属性
+                set(newValue){
+
+                    console.log('监听'+key+'改变')
+                    //告诉谁，谁在用
+                    //解析html代码获取
+                    //张三，李四,王五
+                    //第一次执行就是创建dep，其后执行就是，触发dep.notify ->watch.update,一个属性创建一个dep对象,watch.update改变view
+                    value=newValue
+                },
+                get(){
+
+                    //watch就是html{{}}元素的解析，并初始化view
+                    //第一次get执行是就是与之对应的watch绑定
+                    console.log('获取'+key+'对应的值')
+                    //张三：get
+                    //李四:get
+                    //王五：get
+                    return value
+                }
+            }) 
+
+        })
+
+        //发布订阅者模式 
+        //发布者
+        class Dep{  //依赖
+            constructor(){
+                this.subs=[] //订阅
+            }
+            addSub(watch){
+                this.subs.push(watch)
+            };
+            notify(){
+                this.subs.forEach(item =>{
+                    item.update()}
+                )
+
+                }
+            }
+  
+        //订阅者
+        class Watcher{
+            constructor(name){
+                this.name=name
+            }
+            update(){
+                console.log(this.name+'发生update')
+            }
+        }
+
+
+
+
+
+
+        const dep=new Dep()
+
+        const w1=new Watcher('张三')
+        dep.addSub(w1)
+
+        const w2=new Watcher('李四')
+        dep.addSub(w2)
+
+        const w3=new Watcher('王五')
+        dep.addSub(w3)
+
+        dep.notify()  //每次属性改变，就发出通知
+
+    </script>
+
+    <script src="./node_modules/vue/dist/vue.js"></script>
+    <script>
+        cosnt app=new Vue({
+            el:'#app',
+            data:{
+                message:'hello'
+            }
+        })
+    </script>
+    
+</body>
+</html>
